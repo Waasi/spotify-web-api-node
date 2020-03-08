@@ -1849,6 +1849,45 @@ describe('Spotify Web API', () => {
     });
   });
 
+  test('should add a track playback queue', done => {
+    sinon.stub(HttpManager, '_makeRequest', function(
+      method,
+      options,
+      uri,
+      callback
+    ) {
+      expect(method).toBe(superagent.post);
+      expect(uri).toBe('https://api.spotify.com/v1/me/player/queue');
+      expect(JSON.parse(options.data)).toEqual({
+        device_id: ['deviceId'],
+        uri: ['uri']
+      });
+      expect(options.query).toBeFalsy();
+      callback();
+    });
+
+    var accessToken = 'myAccessToken';
+
+    var api = new SpotifyWebApi({
+      accessToken: accessToken
+    });
+
+    api
+      .queueTrack({
+        deviceId: ['deviceId'],
+        uri: ['uri']
+      })
+      .then(
+        function(data) {
+          done();
+        },
+        function(err) {
+          console.log(err);
+          done(err);
+        }
+      );
+  });
+
   test("should transfer the user's playback", done => {
     sinon.stub(HttpManager, '_makeRequest', function(
       method,
